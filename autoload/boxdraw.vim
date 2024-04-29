@@ -73,6 +73,7 @@ const BOTTOM_MASK = 0x02
 const LEFT_MASK   = 0x04
 const RIGHT_MASK  = 0x08
 
+# dict of bitmask -> corresponding type key
 final maskKeyMap: dict<number> = {
   [BOTTOM_MASK + RIGHT_MASK]: UL,
   [LEFT_MASK + RIGHT_MASK]: HORZ,
@@ -86,6 +87,8 @@ final maskKeyMap: dict<number> = {
   [LEFT_MASK + RIGHT_MASK + TOP_MASK]: HORZUP,
   [LEFT_MASK + RIGHT_MASK + TOP_MASK + BOTTOM_MASK]: HORZVERT
 }
+
+# dict of type key -> bitmask
 final keyMaskMap: dict<number> = {}
 for [maskval, boxkey] in maskKeyMap->items()
   keyMaskMap[boxkey] = str2nr(maskval)
@@ -101,6 +104,7 @@ var curboxtype = 0
 # We can force the overwrite of old characters when drawing
 var force: bool = false
 
+# I keep this as a function in case I support dynamically adding boxtypes in the future.
 def GenMaps()
   for box in boxes
     final keyCharMap: dict<string> = {}
@@ -119,6 +123,25 @@ def GenMaps()
   endfor
 enddef
 
+GenMaps()
+
+var HORZ_CHARS: string = ""
+var VERT_CHARS: string = ""
+var CORNER_CHARS: string = ""
+
+for boxnum in range(boxtypes['ascii'] + 1)
+  const charMap = keyCharMaps[boxnum]
+  HORZ_CHARS ..= charMap[HORZ]
+  VERT_CHARS ..= charMap[VERT]
+  CORNER_CHARS ..= charMap[UL] .. charMap[UR] .. charMap[LL] .. charMap[LR]
+endfor
+CORNER_CHARS = CORNER_CHARS->substitute('\v(.)\1+', '\1', 'g')  # Remove duplicates
+
+# CharValAt() sometimes needs to look beyond the bounds of our visually selected area,
+# so we store the lines above and below the region in these variables.
+var charlineabove: list<string>
+var charlinebelow: list<string>
+
 def CombineChars(c: string, oldchar: string): string
   if force
     return c
@@ -134,11 +157,12 @@ def CombineChars(c: string, oldchar: string): string
   endif
 enddef
 
-# Return the key-type or mask of the character at (lnum,col) in charlists, or -1 if
-# (lnum,col) are invalid or if the character has no defined key-type or mask.
-# lnum and col are both 0-indexed
+# Return the key-type or mask of the character at (lnum,col) in charlists, or an
+# errorVal (-1 or 0, see below) if (lnum,col) are invalid or if the character has no
+# defined key-type or mask.  lnum and col are both 0-indexed
 #
 # If mask is true, we return the bitmask of the character, otherwise the key-type.
+# errorVal is 0 when mask is true, and -1 when mask is false.
 #
 # CharValAt() is only called from the Draw{Horz,Vert}Line() functions, and so
 # we know that lnum will never be out of the range [-1, len(charlists)].
@@ -250,28 +274,38 @@ def DrawVertLine(charlists: list<list<string>>, boxchars: dict<string>,
   endwhile
 enddef
 
-GenMaps()
-
-# CharValAt() sometimes needs to look beyond the bounds of our visually selected area,
-# so we store the lines above and below the region in these variables.
-var charlineabove: list<string>
-var charlinebelow: list<string>
-
 # The type is one of the values in the boxtypes dict ('single', 'rounded', etc.)
+#   or 'IBID' to keep the current box type, or 'SELECTBOX' to invoke SelectBox(),
+#   or 'DIAGONAL_FORWARD' or 'DIAGONAL_BACKWARD' to draw a diagonal line.
 # If force_ is '1' or 'true', we don't combine characters - just draw the box
 # If empty_ is '1' or 'true', we clear out the inside of the box with spaces
 
 export def BoxDraw(type: string = '', force_: string = '', empty_: string = '')
+  if type == 'SELECTBOX'
+    SelectBox()
+    return
+  elseif type == 'DIAGONAL_FORWARD'
+    DrawDiagonal(true)
+    return
+  elseif type == 'DIAGONAL_BACKWARD'
+    DrawDiagonal(false)
+    return
+  endif
   var prevboxtype = curboxtype
-  if !type->empty()
-    curboxtype = boxtypes->get(type, curboxtype)
+  if !type->empty() && type != 'IBID'
+    const bt = boxtypes->get(type, -1)
+    if bt == -1
+      echo $"I don't know the box type '{type}'"
+      return
+    endif
+    curboxtype = bt
   endif
   if visualmode() != "\<C-V>" && visualmode() != "v"
     echo "You must invoke this command from character-wise or block-wise Visual mode"
     return
   endif
   force = force_ == '1' || force_ == 'true'
-  var emptyBox = empty_ == '1' || empty_ == 'true'
+  const emptyBox = empty_ == '1' || empty_ == 'true'
   const cursorpos = getcursorcharpos()
   const [_bufnum1, _lnum1, _col1, _off1] = getcharpos("'<")
   const [_bufnum2, _lnum2, _col2, _off2] = getcharpos("'>")
@@ -354,6 +388,96 @@ export def BoxDraw(type: string = '', force_: string = '', empty_: string = '')
   if type == 'clear'
     curboxtype = prevboxtype
   endif
+enddef
+
+def SelectBox()
+  var saved_wrapscan = &wrapscan
+  try
+    set nowrapscan
+    SelectBoxImpl()
+  catch
+    if mode() == "\<C-v>" | exe "normal! \<Esc>" | endif
+    echo "I couldn't find a clear box at the cursor position."
+  finally
+    &wrapscan = saved_wrapscan
+  endtry
+enddef
+
+def SelectBoxImpl()
+  var saved_wrapscan = &wrapscan
+  var curchar = getline('.')[charcol('.') - 1]
+  if HORZ_CHARS->stridx(curchar) != -1
+    exe $"normal! ?\\V\\[{CORNER_CHARS}]\<CR>"
+    curchar = getline('.')[charcol('.') - 1]
+  elseif VERT_CHARS->stridx(curchar) != -1
+    exe $"normal! ?\\V\\%.v\\[{CORNER_CHARS}]\<CR>"
+    curchar = getline('.')[charcol('.') - 1]
+  endif
+  var boxtype: number = -1
+  var charkey: number = -1
+  for boxnum in range(len(boxes))
+    for key in [UL, UR, LL, LR]
+      if keyCharMaps[boxnum][key] == curchar
+        charkey = key
+        boxtype = boxnum
+        break
+      endif
+    endfor
+  endfor
+  if boxtype == -1
+    echo $"I didn't recognize '{curchar}' as one of the corners or straight beams of any boxtype"
+    return
+  endif
+  const charMap = keyCharMaps[boxtype]
+  exe "normal! \<C-V>"
+  if charkey == UL
+    exe $"normal! f{charMap[UR]}"
+    exe $"keepjumps normal /\\%.v{charMap[LR]}\<CR>"
+  elseif charkey == UR
+    exe $"normal! F{charMap[UL]}"
+    exe $"keepjumps normal /\\%.v{charMap[LL]}\<CR>"
+  elseif charkey == LL
+    exe $"normal! f{charMap[LR]}"
+    exe $"keepjumps normal ?\\%.v{charMap[UR]}\<CR>"
+  elseif charkey == LR
+    exe $"normal! F{charMap[LL]}"
+    exe $"keepjumps normal ?\\%.v{charMap[UL]}\<CR>"
+  endif
+  normal! o
+enddef
+
+def DrawDiagonal(forward: bool)
+  if visualmode() != "\<C-V>"
+    echo "You must invoke this command from block-wise Visual mode"
+    return
+  endif
+  # Now I know about getregion() so this is much simpler than in BoxDraw()...
+  const [pos1, pos2] = [getpos("'<"), getpos("'>")]
+  const region = getregion(pos1, pos2, { type: "\<C-V>" })
+  const numlines = len(region)
+  if numlines == 0 | return | endif
+  const numcols = strcharlen(region[0])
+  const numchars = min([numlines, numcols])
+
+  final charlists: list<list<string>> = []
+  for line in region
+    charlists->add(split(line, '\zs'))
+  endfor
+
+  var col = 0
+  var line = forward ? numlines - 1 : 0
+  var i = 0
+  while i < numchars
+    charlists[line][col] = forward ? '╱' : '╲'
+    col += 1
+    line += forward ? -1 : 1
+    i += 1
+  endwhile
+
+  const savedreg = getreg('d')
+  setreg('d', charlists->mapnew((_, v) => v->join('')), "b")
+  normal gv"dp
+  setreg('d', savedreg)
 enddef
 
 if exists("g:module_export")
