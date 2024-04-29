@@ -9,7 +9,7 @@ Draw pretty boxes in Vim
 
 ## INSTALL
 
-This plugin is written in `vim9script` and requires Vim v9.1 or higher.
+This plugin is written in `vim9script` and requires Vim v9.1.0120 or higher.
 
 * [`vim-plug`](https://github.com/junegunn/vim-plug)
 
