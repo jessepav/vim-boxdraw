@@ -143,3 +143,5 @@ https://github.com/jessepav/vim-boxdraw
 ## LICENSE
 
 MIT
+
+<!-- vim: set linebreak tw=90 : -->
