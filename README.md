@@ -61,7 +61,7 @@ desired arguments. Or you can use the [`boxdraw-mappings`](#mappings) below.
 | ----------- | -------------- |
 |  box-type / command |  Either one of the named box types above (`single`, `rounded`, `double`, `ascii`, `clear`), or `IBID`, to use the same box type as last time, or a special command (`SELECTBOX`, `DIAGONAL_BACKWARD`, `DIAGONAL_FORWARD`), each of which will be described below. |
 |    force    |  Use `true` or `1` to disable intelligent box joining, and just draw the type of box indicated, overwriting any existing box characters encountered. |
-|    empty    |  Use `true` or `1` to replace the interior of the box with spaced, thus "emptying" it. |
+|    empty    |  Use `true` or `1` to replace the interior of the box with spaces, thus "emptying" it. |
 
 ### Selection
 

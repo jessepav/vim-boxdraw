@@ -75,7 +75,7 @@ desired arguments. Or you can use the |boxdraw-mappings| below.
              |  characters encountered.
  ------------+---------------------------------------------------------------
     empty    |  Use `true` or `1` to replace the interior of the box with
-             |  spaced, thus "emptying" it.
+             |  spaces, thus "emptying" it.
  ------------+---------------------------------------------------------------
 
 Selection ~
