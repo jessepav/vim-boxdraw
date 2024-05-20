@@ -432,16 +432,16 @@ def SelectBoxImpl()
   exe "normal! \<C-V>"
   if charkey == UL
     exe $"normal! f{charMap[UR]}"
-    exe $"keepjumps normal /\\%.v{charMap[LR]}\<CR>"
+    exe $"keepjumps normal! /\\%.v{charMap[LR]}\<CR>"
   elseif charkey == UR
     exe $"normal! F{charMap[UL]}"
-    exe $"keepjumps normal /\\%.v{charMap[LL]}\<CR>"
+    exe $"keepjumps normal! /\\%.v{charMap[LL]}\<CR>"
   elseif charkey == LL
     exe $"normal! f{charMap[LR]}"
-    exe $"keepjumps normal ?\\%.v{charMap[UR]}\<CR>"
+    exe $"keepjumps normal! ?\\%.v{charMap[UR]}\<CR>"
   elseif charkey == LR
     exe $"normal! F{charMap[LL]}"
-    exe $"keepjumps normal ?\\%.v{charMap[UL]}\<CR>"
+    exe $"keepjumps normal! ?\\%.v{charMap[UL]}\<CR>"
   endif
   normal! o
 enddef
@@ -476,7 +476,7 @@ def DrawDiagonal(forward: bool)
 
   const savedreg = getreg('d')
   setreg('d', charlists->mapnew((_, v) => v->join('')), "b")
-  normal gv"dp
+  normal! gv"dp
   setreg('d', savedreg)
 enddef
 
