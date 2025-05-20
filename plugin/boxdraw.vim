@@ -74,11 +74,11 @@ if get(g:, "boxdraw_skip_mappings") == 0
   if mapcheck("<M-B>", "v")->empty() || devmode
     vnoremap <M-B> <Esc><Cmd>BoxDraw IBID true<CR>
   endif
-  if mapcheck("<M-l>", "v")->empty() || devmode
-    vnoremap <M-l> <Esc><Cmd>BoxDraw SELECTBOX<CR>
+  if mapcheck("<M-L>", "v")->empty() || devmode
+    vnoremap <M-L> <Esc><Cmd>BoxDraw SELECTBOX<CR>
   endif
-  if mapcheck("<M-l>", "n")->empty() || devmode
-    nnoremap <M-l> <Cmd>BoxDraw SELECTBOX<CR>
+  if mapcheck("<M-L>", "n")->empty() || devmode
+    nnoremap <M-L> <Cmd>BoxDraw SELECTBOX<CR>
   endif
 
 endif  # boxdraw_skip_mappings

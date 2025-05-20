@@ -142,8 +142,8 @@ these mappings will be provided when the plugin is loaded:
   # One-key meta shortcuts ~
   vnoremap <M-b> <Esc><Cmd>BoxDraw<CR>
   vnoremap <M-B> <Esc><Cmd>BoxDraw IBID true<CR>
-  vnoremap <M-l> <Esc><Cmd>BoxDraw SELECTBOX<CR>
-  nnoremap <M-l> <Cmd>BoxDraw SELECTBOX<CR>
+  vnoremap <M-L> <Esc><Cmd>BoxDraw SELECTBOX<CR>
+  nnoremap <M-L> <Cmd>BoxDraw SELECTBOX<CR>
 
 ==============================================================================
 AUTHOR                                                  *boxdraw-author*
