@@ -27,6 +27,14 @@ const doubleBox =<< trim EOF
     ╚═╩═╝
 EOF
 
+const heavyBox =<< trim EOF
+    ┏━┳━┓
+    ┃ ┃ ┃
+    ┣━╋━┫
+    ┃ ┃ ┃
+    ┗━┻━┛
+EOF
+
 const asciiBox =<< trim EOF
     +-+-+
     | | |
@@ -39,8 +47,8 @@ EOF
 const clearBox = mapnew(singleBox, (_, v) => repeat(' ', strcharlen(v)))
 
 # Index and map of box types
-final boxes = [singleBox, doubleBox, roundedBox, asciiBox, clearBox]
-final boxtypes = { 'single': 0, 'double': 1, 'rounded': 2, 'ascii': 3, 'clear': 4 }
+final boxes = [singleBox, doubleBox, roundedBox, heavyBox, asciiBox, clearBox]
+final boxtypes = { 'single': 0, 'double': 1, 'rounded': 2, 'heavy': 3, 'ascii': 4, 'clear': 5 }
 
 # Keys by which we refer to our box-drawing characters
 const NUMKEYS = 11

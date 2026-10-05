@@ -26,6 +26,7 @@ if get(g:, "boxdraw_skip_mappings") == 0
     vnoremap <Leader>bs <Esc><Cmd>BoxDraw single<CR>
     vnoremap <Leader>bd <Esc><Cmd>BoxDraw double<CR>
     vnoremap <Leader>br <Esc><Cmd>BoxDraw rounded<CR>
+    vnoremap <Leader>bh <Esc><Cmd>BoxDraw heavy<CR>
     vnoremap <Leader>ba <Esc><Cmd>BoxDraw ascii<CR>
     vnoremap <Leader>bc <Esc><Cmd>BoxDraw clear<CR>
     vnoremap <Leader>bb <Esc><Cmd>BoxDraw<CR>
@@ -34,6 +35,7 @@ if get(g:, "boxdraw_skip_mappings") == 0
     vnoremap <Leader>bes <Esc><Cmd>BoxDraw single false true<CR>
     vnoremap <Leader>bed <Esc><Cmd>BoxDraw double false true<CR>
     vnoremap <Leader>ber <Esc><Cmd>BoxDraw rounded false true<CR>
+    vnoremap <Leader>beh <Esc><Cmd>BoxDraw heavy false true<CR>
     vnoremap <Leader>bea <Esc><Cmd>BoxDraw ascii false true<CR>
     vnoremap <Leader>bec <Esc><Cmd>BoxDraw clear false true<CR>
 
@@ -50,6 +52,7 @@ if get(g:, "boxdraw_skip_mappings") == 0
     vnoremap <Leader>BS <Esc><Cmd>BoxDraw single true<CR>
     vnoremap <Leader>BD <Esc><Cmd>BoxDraw double true<CR>
     vnoremap <Leader>BR <Esc><Cmd>BoxDraw rounded true<CR>
+    vnoremap <Leader>BH <Esc><Cmd>BoxDraw heavy true<CR>
     vnoremap <Leader>BA <Esc><Cmd>BoxDraw ascii true<CR>
     vnoremap <Leader>BC <Esc><Cmd>BoxDraw clear true<CR>
     vnoremap <Leader>BB <Esc><Cmd>BoxDraw IBID true<CR>
@@ -58,6 +61,7 @@ if get(g:, "boxdraw_skip_mappings") == 0
     vnoremap <Leader>BES <Esc><Cmd>BoxDraw single true true<CR>
     vnoremap <Leader>BED <Esc><Cmd>BoxDraw double true true<CR>
     vnoremap <Leader>BER <Esc><Cmd>BoxDraw rounded true true<CR>
+    vnoremap <Leader>BEH <Esc><Cmd>BoxDraw heavy true true<CR>
     vnoremap <Leader>BEA <Esc><Cmd>BoxDraw ascii true true<CR>
     vnoremap <Leader>BEC <Esc><Cmd>BoxDraw clear true true<CR>
   endif
